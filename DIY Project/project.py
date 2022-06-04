@@ -121,6 +121,8 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
                     if key==ord('p') or key ==ord('P'):
                         break
                 for x in range(2000):
+                        ret, frame = camera.read()
+                        mesh_coords = landmarksDetection(frame, results, False)
                         user_ratio += blinkRatio(frame, mesh_coords, RIGHT_EYE, LEFT_EYE)
             
             if train_count == 1:
