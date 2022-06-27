@@ -1,3 +1,4 @@
+from hashlib import sha1
 from random import triangular
 from turtle import clear
 import cv2 as cv
@@ -89,7 +90,7 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
         blank_frame = np. zeros(shape=[512,712,3],dtype=np. uint8)
         face_rect = haar_face.detectMultiScale(mask_frame, scaleFactor = 1.1, minNeighbors=20)
         eye_rect = haar_eye.detectMultiScale(mask_frame, scaleFactor = 1.1, minNeighbors=5)
-        hand_rect = haar_hand.detectMultiScale(mask_frame, scaleFactor = 1.1, minNeighbors=1)
+        # hand_rect = haar_hand.detectMultiScale(mask_frame, scaleFactor = 1.1, minNeighbors=1)
         if not ret: 
             break
         
@@ -117,6 +118,7 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
                     cv.putText(blank_frame, "1. NOW CLOSE YOUR EYES", (10, 220), cv.FONT_HERSHEY_COMPLEX, 1, (0,0,255), thickness=2)
                     cv.putText(blank_frame, "2. THEN PRESS 'P'", (10, 260), cv.FONT_HERSHEY_COMPLEX, 1, (0,0,255), thickness=2) 
                     cv.putText(blank_frame, "3. WAIT FOR 6 SEC THEN OPEN YOUR EYES", (10, 300), cv.FONT_HERSHEY_COMPLEX, 0.9, (0,0,255), thickness=2) 
+                    cv.putText(blank_frame, "4. AND THEN WAIT FOR 6 SEC WITH OPEN EYE", (10, 340), cv.FONT_HERSHEY_COMPLEX, 0.9, (0,0,255), thickness=2) 
                     cv.imshow("Display", blank_frame)
 
                     key = cv.waitKey(2)
@@ -125,7 +127,24 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
                 for x in range(200):
                         ret, frame = camera.read()
                         mesh_coords = landmarksDetection(frame, results, False)
+
                         user_ratio += blinkRatio(frame, mesh_coords, RIGHT_EYE, LEFT_EYE)
+                
+                
+                while True:
+                    blank_frame= np.zeros(shape=[512,712,3],dtype=np. uint8)
+                    cv.putText(blank_frame, "NOW OPEN YOUR EYE AND ADD DATA", (40, 200), cv.FONT_HERSHEY_COMPLEX, 0.9, (0,0,255), thickness=2)
+                    cv.putText(blank_frame, "THEN PRESS 'P'", (40, 240), cv.FONT_HERSHEY_COMPLEX, 0.9, (0,0,255), thickness=2)
+                    cv.imshow("Display", blank_frame)
+
+                    key = cv.waitKey(2)
+                    if key==ord('p') or key ==ord('P'):
+                        break
+                
+                for x in range(200):
+                        ret, frame = camera.read()
+                        mesh_coords = landmarksDetection(frame, results, False)
+                        blinkRatio(frame, mesh_coords, RIGHT_EYE, LEFT_EYE)
             
             if train_count == 1:
                 train_count = 2
@@ -167,6 +186,7 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
         # cv.rectangle(blank_frame, (160, 200), (480, 295), (255,0,0), thickness=3)
         cv.putText(blank_frame, "FACE: ", (20, 120), cv.FONT_HERSHEY_COMPLEX, 1, (0,0,255), thickness=2)
         cv.putText(blank_frame, "MASK: ", (20, 180), cv.FONT_HERSHEY_COMPLEX, 1, (0,0,255), thickness=2)
+        cv.putText(blank_frame, "PRESS 'Q' TO EXIT THE SAFETY MODULE", (20, 400), cv.FONT_HERSHEY_COMPLEX, 1, (0,0,255), thickness=2)
         if len(face_rect) == 0 and len(eye_rect) != 0: 
             cv.putText(blank_frame, "FOUND", (130, 120), cv.FONT_HERSHEY_COMPLEX, 1, (0,0,255), thickness=2)
             cv.putText(blank_frame, "FOUND", (130, 180), cv.FONT_HERSHEY_COMPLEX, 1, (0,0,255), thickness=2)
@@ -182,8 +202,8 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
 
         for (x, y, w, h) in face_rect:
             cv.rectangle(mask_frame, (x, y), (x+w, y+h), (0, 255, 0), thickness=2)
-        for (x, y, w, h) in hand_rect:
-            cv.rectangle(mask_frame, (x, y), (x+w, y+h), (0, 255, 0), thickness=2)
+        # for (x, y, w, h) in hand_rect:
+        #     cv.rectangle(mask_frame, (x, y), (x+w, y+h), (0, 255, 0), thickness=2)
 
         cv.imshow('Mask Detection', mask_frame)
 
